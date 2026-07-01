@@ -25,19 +25,16 @@ body {
 
   .game-wrapper {
     position: relative;
+    width: 800px;
     border: 2px solid #535353;
     border-radius: 4px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     background-image: url("../img/background.png");
-  
   }
 
 canvas{
-    width: 1000px;
-    height: auto;
     border: 2px solid black;
-    display: block; 
-
+    display: block;
 }
 .hud {
     position: absolute;

@@ -21,7 +21,7 @@ let animationId = null;
 // =====================
 const GROUND = {
   x: 0,
-  y: 130,
+  y: 440,
   w: 800,
   h: 0,
 };
@@ -32,10 +32,10 @@ const GROUND = {
 
 const player = {
   x: 50,
-  y: GROUND.y - 20,
-  w: 35,
-  h: 35,
-  groundY: GROUND.y - 20,
+  y: GROUND.y - 90,
+  w: 90,
+  h: 90,
+  groundY: GROUND.y - 40,
   vy: 0,
   isJumping: false,
 };
@@ -44,10 +44,9 @@ const player = {
 // =====================
 // PHYSICS
 // =====================
-const GRAVITY = 0.6;
-//const enemySpeed = 1;
-const JUMP_FORCE = -12;
-const OBSTACLE_SPEED = 5;
+const GRAVITY = 0.8;
+const JUMP_FORCE = -22;
+const OBSTACLE_SPEED = 8;
 let SPAWN_INTERVAL =  1800;
 
 
@@ -57,6 +56,8 @@ let SPAWN_INTERVAL =  1800;
 let obstacles = [];
 
 window.onload = function () {
+  canvas.width = 800;
+  canvas.height = 500; 
   draw();
   document.addEventListener("keydown", handleKeydown);
 };
@@ -124,11 +125,11 @@ function endGame() {
 // g.iv - randomized height (optional)
 // const height = 60 + Math.floor(Math.random() * 60); // 30–60px
 // const width = 24 + Math.floor(Math.random() * 14);
-const height = 60; // 30–60px
-const width = 24;
+const height = 135;
+const width = 75;
 obstacles.push({
   x: canvas.width,
-  y: GROUND.y - 40,
+  y: GROUND.y - 70,
   w: width,
   h: height,
   passed: false
