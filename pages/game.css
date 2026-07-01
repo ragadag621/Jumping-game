@@ -13,7 +13,7 @@ body {
     align-items: center;
     justify-content: center;
     min-height: 100vh;
-    background: #f7f7f7;
+    background: #1b1b1b;
     font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
   }
 
@@ -27,16 +27,16 @@ body {
     position: relative;
     border: 2px solid #535353;
     border-radius: 4px;
-    background: #fff;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    background-image: url("../img/background.png");
+  
   }
 
 canvas{
     width: 800;
     height: 500px;
     border: 2px solid black;
-    display: block;
-    background: white;
+    display: block; 
 
 }
 .hud {
@@ -45,7 +45,7 @@ canvas{
     right: 16px;
     font-size: 1.1rem;
     font-weight: bold;
-    color: #535353;
+    color: #dbdbdb;
     font-family: monospace;
     pointer-events: none;
   }
@@ -57,9 +57,9 @@ canvas{
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    background: rgba(255, 255, 255, 0.85);
+    background: rgba(255, 255, 255, 0.322);
     text-align: center;
-    color: #535353;
+    color: #dbdbdb;
   }
 
   .overlay.hidden {

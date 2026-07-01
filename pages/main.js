@@ -24,7 +24,7 @@ const GROUND = {
   x: 0,
   y: 130,
   w: 800,
-  h: 50,
+  h: 0,
 };
 
 // =====================
@@ -33,10 +33,10 @@ const GROUND = {
 
 const player = {
   x: 50,
-  y: GROUND.y - 30,
+  y: GROUND.y - 10,
   w: 30,
   h: 30,
-  groundY: GROUND.y - 30,
+  groundY: GROUND.y - 10,
   vy: 0,
   isJumping: false,
 };
