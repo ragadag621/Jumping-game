@@ -43,6 +43,28 @@ let obstacles = [
   { x: 1150, y: ground.y - 15, w: 10, h: 15 },
 ]
 
+window.onload = function()
+{
+    requestAnimationFrame(update)
+
+    draw();
+}
+
+// =====================
+// UPDATE
+// =====================
+function update()
+{
+    requestAnimationFrame(update)
+
+    if(gameOver)
+    {
+        return;
+    }
+
+    draw()
+}
+
 // =====================
 // JUMP
 // =====================
@@ -85,19 +107,16 @@ function drawGround() {
 // COLLISION
 // =====================
 
-// =====================
-// UPDATE
-// =====================
 
 
 
 // =====================
 // LOOP
 // =====================
-function loop() {
-  //update()
-  draw()
-  requestAnimationFrame(loop)
-}
+// function loop() {
+//   //update()
+//   draw()
+//   requestAnimationFrame(loop)
+// }
 
-loop()
+// loop()
