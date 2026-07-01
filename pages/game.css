@@ -1,11 +1,15 @@
+
 body{
     margin: 0;
     align-items: center;
 }
+h1 {
+    text-align: center;
+    font-family: 'Courier New', Courier, monospace;
+}
 canvas{
     width: 800;
     height: 500px;
-    border: 2px solid red;
     border: 2px solid black;
     display: block;
     margin: 50px auto;
