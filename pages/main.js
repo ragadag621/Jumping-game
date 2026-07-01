@@ -59,6 +59,10 @@ function update()
     requestAnimationFrame(update)
     for (let i = 0; i < obstacles.length; i++) {
     obstacles[i].x -= enemySpeed;
+      if (obstacles[i].x + obstacles[i].w < 0) {
+      obstacles[i].x = 1150 
+      }
+
     }
 
     if(gameOver)
