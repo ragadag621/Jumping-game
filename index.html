@@ -5,12 +5,26 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="pages/game.css">
+    <script src="pages/main.js" defer></script>
     <title>jumping game </title>
 </head>
 <body>
     <h1>Jumping Game</h1>
+   <section class="game-wrapper">
     <canvas id="game"></canvas>
-    <script src="pages/main.js"></script>
+    <div class="hud">Score: <span id="score">0</span></div>
+
+        <div id="startOverlay" class="overlay">
+            <h2>Press Space to Start</h2>
+            <p>Jump over the obstacles!... <br> but watch out for the spikes! <br> They will end your game.</p>
+        </div>
+
+        <div id="gameOverOverlay" class="overlay hidden">
+            <h2>Game Over</h2>
+            <p>Final Score: <span id="finalScore">0</span></p>
+            <p>Press Space to Restart</p>
+        </div>
+    
 
     
 </body>
