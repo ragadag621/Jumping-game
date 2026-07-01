@@ -32,6 +32,7 @@ let player = {
 // PHYSICS
 // =====================
 const gravity = 0.7
+const enemySpeed = 0.01
 
 // =====================
 // OBSTACLES
@@ -56,6 +57,9 @@ window.onload = function()
 function update()
 {
     requestAnimationFrame(update)
+    for (let i = 0; i < obstacles.length; i++) {
+    obstacles[i].x -= enemySpeed;
+    }
 
     if(gameOver)
     {
@@ -106,17 +110,32 @@ function drawGround() {
 // =====================
 // COLLISION
 // =====================
-
+// to be reviewed when enemies are moving...
+function detectCollision(){
+ for (let i = 0; i < obstacles.length; i++) {
+    const enemy = obstacles[i]
+    if (
+      player.x < enemy.x + enemy.w &&  
+      player.x + player.w > enemy.x &&  
+      player.y < enemy.y + enemy.h &&  
+      player.y + player.h > enemy.y
+    ) {
+      return true  
+    }
+  }
+  return false
+}
 
 
 
 // =====================
 // LOOP
 // =====================
-// function loop() {
-//   //update()
-//   draw()
-//   requestAnimationFrame(loop)
-// }
+function loop() {
 
-// loop()
+  update()
+  draw()
+  requestAnimationFrame(loop)
+}
+
+loop()
