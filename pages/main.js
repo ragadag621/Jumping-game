@@ -95,7 +95,7 @@ function drawGround() {
 // LOOP
 // =====================
 function loop() {
-  update()
+  //update()
   draw()
   requestAnimationFrame(loop)
 }
