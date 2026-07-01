@@ -69,12 +69,13 @@ function update() {
     obstacles[i].x -= enemySpeed;
     if (obstacles[i].x + obstacles[i].w < 0) {
       obstacles[i].x = 1150;
-      console.log(obstacles[i].x)
     }
   }
 
   if (gameOver) {
     return;
+    console.log("game over") // delete after testing
+
   }
 
   //PLAYER
@@ -85,7 +86,7 @@ function update() {
   {
     jumping = false;
   }
-
+  detectCollision();
   draw();
 }
 
@@ -143,18 +144,20 @@ function drawGround() {
 // =====================
 // to be reviewed when enemies are moving...
 function detectCollision() {
-  for (let i = 0; i < obstacles.length; i++) {
-    const enemy = obstacles[i];
-    if (
-      player.x < enemy.x + enemy.w &&
-      player.x + player.w > enemy.x &&
-      player.y < enemy.y + enemy.h &&
-      player.y + player.h > enemy.y
-    ) {
-      return true;
-    }
+
+    for (let i = 0; i < obstacles.length; i++) {
+      const enemy = obstacles[i];
+      if (
+        player.x < enemy.x + enemy.w &&
+        player.x + player.w > enemy.x &&
+        player.y < enemy.y + enemy.h &&
+        player.y + player.h > enemy.y
+      ) {
+        console.log("Collide!")
+        gameOver = true
+        break
+      }
   }
-  return false;
 }
 
 // =====================
@@ -162,8 +165,10 @@ function detectCollision() {
 // =====================
 function loop() {
   //update();
-  draw();
-  requestAnimationFrame(loop);
+  while(gameOver){
+    draw();
+    requestAnimationFrame(loop);  
+  }
 }
 
 loop();
