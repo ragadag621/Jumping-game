@@ -46,14 +46,7 @@ let obstacles = [
 // =====================
 // JUMP
 // =====================
-function jump() {
-  document.addEventListener("keydown", function (event) {
-    if (event.code === "Space" || (event.code === "" && !player.jumping)) {
-      player.vy = -12
-      player.jumping = true
-    }
-  })
-}
+
 
 // =====================
 // DRAW
@@ -96,19 +89,7 @@ function drawGround() {
 // UPDATE
 // =====================
 
-// function update() {
-//   if (gameOver) return;
 
-//   const obstacleSpeed = 6; 
-
-//   for (let i = 0; i < obstacles.length; i++) {
-//     obstacles[i].x -= obstacleSpeed; 
-
-//     if (obstacles[i].x + obstacles[i].w < 0) {
-//       obstacles[i].x = canvas.width + Math.random() * 200;
-//     }
-//   }
-// }
 
 // =====================
 // LOOP
