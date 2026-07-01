@@ -6,7 +6,6 @@ const scoreEl = document.getElementById("score");
 const finalScoreEl = document.getElementById("finalScore");
 const gameoverSound = document.getElementById("gameoverSound"); 
 
-
 // =====================
 // GAME STATE
 // =====================
@@ -33,10 +32,10 @@ const GROUND = {
 
 const player = {
   x: 50,
-  y: GROUND.y - 10,
-  w: 30,
-  h: 30,
-  groundY: GROUND.y - 10,
+  y: GROUND.y - 20,
+  w: 35,
+  h: 35,
+  groundY: GROUND.y - 20,
   vy: 0,
   isJumping: false,
 };
@@ -123,12 +122,13 @@ function endGame() {
 
   function spawnObstacle() {
 // g.iv - randomized height (optional)
-const height = 30 + Math.floor(Math.random() * 30); // 30–60px
-const width = 20 + Math.floor(Math.random() * 10);
-
+// const height = 60 + Math.floor(Math.random() * 60); // 30–60px
+// const width = 24 + Math.floor(Math.random() * 14);
+const height = 60; // 30–60px
+const width = 24;
 obstacles.push({
   x: canvas.width,
-  y: GROUND.y - height,
+  y: GROUND.y - 40,
   w: width,
   h: height,
   passed: false
