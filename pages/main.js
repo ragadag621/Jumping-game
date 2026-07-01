@@ -19,11 +19,17 @@ const ground = {
 // =====================
 // PLAYER
 // =====================
+let playerX = 50
+let playerY = ground.y - 30;
+let playerWidth = 30;
+let playerHeight = 30;
+let jumpVelocity = 0;
+
 let player = {
-  x: 50,
-  y: ground.y - 30,
-  w: 30,
-  h: 30,
+  x: playerX,
+  y: playerY,
+  w: playerWidth,
+  h: playerHeight,
   vy: 0,
   jumping: false,
 }
@@ -31,7 +37,7 @@ let player = {
 // =====================
 // PHYSICS
 // =====================
-const gravity = 0.7
+const gravity = 0.6
 const enemySpeed = 0.01
 
 // =====================
@@ -49,6 +55,8 @@ window.onload = function()
     requestAnimationFrame(update)
 
     draw();
+
+    document.addEventListener("keydown", jump)
 }
 
 // =====================
@@ -70,13 +78,28 @@ function update()
         return;
     }
 
+    //PLAYER
+    jumpVelocity += gravity;
+    player.y = Math.min(player.y + jumpVelocity, playerY)
+
     draw()
 }
 
 // =====================
 // JUMP
 // =====================
+function jump(e)
+{
+    if(gameOver)
+    {
+        return;
+    }
 
+    if((e.code == "Space" || e.code == "ArrowUp") && player.y === playerY)
+    {
+        jumpVelocity = -10;
+    }
+}
 
 // =====================
 // DRAW
