@@ -48,13 +48,20 @@ const GROUND = {
 // =====================
 const player = {
   x: 50,
-  y: GROUND.y - 90,
-  w: 90,
-  h: 90,
-  groundY: GROUND.y - 40,
+  y: GROUND.y - 150,
+  w: 200,
+  h: 200,
+  groundY: GROUND.y-150 ,
   vy: 0,
   isJumping: false,
 }
+let currentFrame = 0
+let frameTimer = 0
+
+const FRAME_WIDTH = 128
+const FRAME_HEIGHT = 128
+const TOTAL_FRAMES = 7
+const FRAME_DELAY = 100
 
 // =====================
 // PHYSICS
@@ -105,6 +112,23 @@ function updateVolumes(value) {
     jumpSound.volume = value;
     gameoverSound.volume = value;
     console.log("Volume is now: " + value);
+}
+
+function updateAnimation(delta) {
+
+    frameTimer += delta
+
+    if(frameTimer >= FRAME_DELAY){
+
+        currentFrame++
+
+        if(currentFrame >= TOTAL_FRAMES){
+            currentFrame = 0
+        }
+
+        frameTimer = 0
+    }
+
 }
 
 
@@ -185,7 +209,7 @@ function randomSpawnInterval() {
 const enemy_type = {
   spike:    { w: 75,  h: 135 },
   skeleton: { w: 60,  h: 100 },
-  spider:   { w: 80,  h: 60  },
+  spider:   { w: 80,  h: 90  },
 }
 
 function spawnObstacle() {
@@ -212,7 +236,7 @@ function updateObstacles() {
 }
 
 const playerImg = new Image()
-playerImg.src = "img/player_ghost.png"
+playerImg.src = "img/Run.png"
 
 const obstacleImg = new Image()
 obstacleImg.src = "img/spike_enemy.png"
@@ -236,7 +260,7 @@ function drawObstacles() {
   const IMAGES = {
     spike: obstacleImg,
     skeleton: obstacleImg2,
-    spider: obstacleImg3,
+   spider: obstacleImg3,
   }
   for (const obs of obstacles) {
     const img = IMAGES[obs.type]
@@ -245,15 +269,33 @@ function drawObstacles() {
 }
 
 
-function drawPlayer() {
-  ctx.drawImage(playerImg, player.x, player.y, player.w, player.h)
+function drawPlayer(){
+
+    ctx.drawImage(
+
+        playerImg,
+
+        currentFrame * FRAME_WIDTH,
+        0,
+
+        FRAME_WIDTH,
+        FRAME_HEIGHT,
+
+        player.x,
+        player.y,
+
+        player.w,
+        player.h
+
+    )
+
 }
 
 // =====================
 // COLLISION
 // =====================
 function detectCollision() {
-  const pad = 20
+  const pad = 70
   for (const obs of obstacles) {
     if (
       player.x + pad < obs.x + obs.w &&
@@ -302,6 +344,7 @@ function loop(timestamp) {
   const delta = msPassed
 
   updatePlayer()
+  updateAnimation(delta)
   updateObstacles()
 
   if (timestamp - lastSpawn >= nextSpawnInterval) {
