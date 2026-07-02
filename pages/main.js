@@ -10,8 +10,9 @@ const jumpSound = document.getElementById("jumpSound")
 const gameoverSound = document.getElementById("gameoverSound")
 const pointSound = document.getElementById("pointSound")
 const volControl = document.getElementById("volumeControl")
-
 console.log(jumpSound, gameoverSound, pointSound)
+
+//thanks guys for the good jab
 
 let msPrev = window.performance.now()
 const fps = 60
