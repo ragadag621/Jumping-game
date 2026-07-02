@@ -8,7 +8,10 @@ const highScoreEl = document.getElementById("highScore")
 const gameoverSound = document.getElementById("gameoverSound")
 
 
-
+let msPrev = window.performance.now()
+const fps = 60
+const msPerFrame = 1000 / fps
+let frames = 0
 
 // =====================
 // GAME STATE
