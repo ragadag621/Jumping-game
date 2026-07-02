@@ -158,7 +158,7 @@ function spawnObstacle() {
 }
 
 function updateObstacles() {
-  gameSpeed += 0.0001
+  gameSpeed += 0.001
  for (const obs of obstacles) {
     obs.x -= gameSpeed
   }
@@ -254,6 +254,7 @@ function loop(timestamp) {
 
   frames++
   animationId = requestAnimationFrame(loop)
+  console.log(gameSpeed)
 }
 
 setInterval(() => {
