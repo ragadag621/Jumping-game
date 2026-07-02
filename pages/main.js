@@ -4,6 +4,7 @@ const startOverlay = document.getElementById("startOverlay");
 const gameOverOverlay = document.getElementById("gameOverOverlay");
 const scoreEl = document.getElementById("score");
 const finalScoreEl = document.getElementById("finalScore");
+const finallhighScoreEl = document.getElementById("finallhighScore");
 const highScoreEl = document.getElementById("highScore");
 const jumpSound = document.getElementById("jumpSound");
 const gameoverSound = document.getElementById("gameoverSound");
@@ -67,6 +68,7 @@ let obstacles = [];
 window.onload = function () {
   canvas.width = 800;
   canvas.height = 500;
+   highScore = 0;
   draw();
   document.addEventListener("keydown", handleKeydown);
 
@@ -116,6 +118,7 @@ function endGame() {
   cancelAnimationFrame(animationId);
   finalScoreEl.textContent = score;
   highScoreEl.textContent = highScore;
+  finallhighScoreEl.textContent = highScore;
 
   if (score > highScore) {
     highScore = score;
@@ -218,6 +221,7 @@ function updateScore(delta) {
   scoreTimer += delta;
   if (scoreTimer >= 100) {
     score += 1;
+    highScore = Math.max(highScore, score);
     scoreTimer = 0;
     scoreSound += 1;
     if (scoreSound === 100) {
