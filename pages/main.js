@@ -1,20 +1,25 @@
-const canvas = document.getElementById("game");
-const ctx = canvas.getContext("2d");
-const startOverlay = document.getElementById("startOverlay");
-const gameOverOverlay = document.getElementById("gameOverOverlay");
-const scoreEl = document.getElementById("score");
-const finalScoreEl = document.getElementById("finalScore");
-const gameoverSound = document.getElementById("gameoverSound"); 
+const canvas = document.getElementById("game")
+const ctx = canvas.getContext("2d")
+const startOverlay = document.getElementById("startOverlay")
+const gameOverOverlay = document.getElementById("gameOverOverlay")
+const scoreEl = document.getElementById("score")
+const finalScoreEl = document.getElementById("finalScore")
+const highScoreEl = document.getElementById("highScore")
+const gameoverSound = document.getElementById("gameoverSound")
 
 // =====================
 // GAME STATE
 // =====================
-let gameState = "idle"; // idle, playing, gameover
-let gameOver = false;
-let score = 0;
-let scoreTimer = 0;
-let lastSpawn = 0;
-let animationId = null;
+let gameState = "idle" // idle, playing, gameover
+let score = 0
+let scoreTimer = 0
+let lastSpawn = 0
+let nextSpawnInterval = 1500 
+let lastTimestamp = 0 
+let animationId = null
+let gameSpeed = 8
+
+let highScore = Number(localStorage.getItem("dinoHighScore") || 0)
 
 // =====================
 // GROUND
@@ -24,12 +29,11 @@ const GROUND = {
   y: 440,
   w: 800,
   h: 0,
-};
+}
 
 // =====================
 // PLAYER
 // =====================
-
 const player = {
   x: 50,
   y: GROUND.y - 90,
@@ -38,168 +42,178 @@ const player = {
   groundY: GROUND.y - 40,
   vy: 0,
   isJumping: false,
-};
-
+}
 
 // =====================
 // PHYSICS
 // =====================
-const GRAVITY = 0.8;
-const JUMP_FORCE = -22;
-const OBSTACLE_SPEED = 8;
-let SPAWN_INTERVAL =  1800;
-
+const GRAVITY = 0.8
+const JUMP_FORCE = -19
 
 // =====================
 // OBSTACLES
 // =====================
-let obstacles = [];
+let obstacles = []
 
 window.onload = function () {
-  canvas.width = 800;
-  canvas.height = 500; 
-  draw();
-  document.addEventListener("keydown", handleKeydown);
-};
+  canvas.width = 800
+  canvas.height = 500
+  draw()
+  document.addEventListener("keydown", handleKeydown)
 
-function jump() {
-  if (!player.isJumping && gameState ==='playing') {
-    player.vy = JUMP_FORCE;
-    player.isJumping = true;
-    //jumpSound.play();
-    return;
-  }
+  canvas.addEventListener("mousedown", handleTap)
+  canvas.addEventListener("touchstart", handleTap, { passive: false })
 }
 
+function handleTap(e) {
+  e.preventDefault()
+  if (gameState === "idle" || gameState === "gameover") startGame()
+  else jump()
+}
+
+function jump() {
+  if (!player.isJumping && gameState === "playing") {
+    player.vy = JUMP_FORCE
+    player.isJumping = true
+    //jumpSound.play();
+  }
+}
 
 //===================
 //  START/END GAME
 //===================
 
 function startGame() {
-  gameState = "playing";
-  score = 0;
-  scoreTimer = 0;
-  obstacles = [];
-  lastSpawn = performance.now();
-  player.y = player.groundY;
-  player.vy = 0;
-  player.isJumping = false;
-  scoreEl.textContent = "0";
-  startOverlay.classList.add("hidden");
-  gameOverOverlay.classList.add("hidden");
+  gameState = "playing"
+  score = 0
+  scoreTimer = 0
+  gameSpeed = 8
+  obstacles = []
+  lastSpawn = performance.now()
+  lastTimestamp = 0
+  nextSpawnInterval = randomSpawnInterval()
+  player.y = player.groundY
+  player.vy = 0
+  player.isJumping = false
+  scoreEl.textContent = "0"
+  startOverlay.classList.add("hidden")
+  gameOverOverlay.classList.add("hidden")
 
-  animationId = requestAnimationFrame(loop);
+  animationId = requestAnimationFrame(loop)
 }
 
 function endGame() {
-  gameState = "gameover";
-  cancelAnimationFrame(animationId);
-  finalScoreEl.textContent = score;
-  gameOverOverlay.classList.remove("hidden");
+  gameState = "gameover"
+  cancelAnimationFrame(animationId)
+  finalScoreEl.textContent = score
+  highScoreEl.textContent = highScore
+
+  if (score > highScore) {
+    highScore = score
+    localStorage.setItem("dinoHighScore", highScore)
+  }
+
+  gameOverOverlay.classList.remove("hidden")
   //gameoverSound.play();
 }
 
-
 //=============================
-  //PLAYER UPDATE WRT GRAVITY
-//==============================  
-  function updatePlayer(delta) {  
-   player.vy += GRAVITY;
-   player.y += player.vy;
-   if (player.y >= player.groundY) {
-     player.y = player.groundY;
-     player.isJumping = false;
-     player.vy = 0;
-   }
+// PLAYER UPDATE WRT GRAVITY
+//==============================
+function updatePlayer() {
+  player.vy += GRAVITY
+  player.y += player.vy
+  if (player.y >= player.groundY) {
+    player.y = player.groundY
+    player.isJumping = false
+    player.vy = 0
   }
-
-
+}
 
 //=====================
-   //OBSTACLE UPDATE
+// OBSTACLE SPAWN / UPDATE
 //=====================
 
+function randomSpawnInterval() {
+  const base = 1000 + Math.random() * 1000 
+  return base * (8 / gameSpeed)
+}
 
-  function spawnObstacle() {
-// g.iv - randomized height (optional)
-// const height = 60 + Math.floor(Math.random() * 60); // 30–60px
-// const width = 24 + Math.floor(Math.random() * 14);
-const height = 135;
-const width = 75;
-obstacles.push({
-  x: canvas.width,
-  y: GROUND.y - 70,
-  w: width,
-  h: height,
-  passed: false
-});
+function spawnObstacle() {
+  const height = 135
+  const width = 75
+  obstacles.push({
+    x: canvas.width,
+    y: GROUND.y - 70,
+    w: width,
+    h: height,
+    passed: false,
+  })
 }
 
 function updateObstacles() {
-  obstacles.forEach((obs) => {
-    obs.x -= OBSTACLE_SPEED;
-  });
+  gameSpeed += 0.0001
+ for (const obs of obstacles) {
+    obs.x -= gameSpeed
+  }
 
-  // Remove off-screen obstacles
-  obstacles = obstacles.filter((obs) => obs.x + obs.w > 0);
+  obstacles = obstacles.filter((obs) => obs.x + obs.w > 0)
 }
 
+const playerImg = new Image()
+playerImg.src = "img/dino.png"
 
-const playerImg = new Image();
-playerImg.src = "img/dino.png";
-
-const obstacleImg = new Image();
-obstacleImg.src = "img/cactus1.png";
-
+const obstacleImg = new Image()
+obstacleImg.src = "img/cactus1.png"
 
 // =====================
 // DRAW
 // =====================
 function draw() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  drawGround();
-  drawPlayer();
-  drawObstacle();
-}
-function drawObstacle(obstacle) {
-  for (let i = 0; i < obstacles.length; i++) {
-    ctx.drawImage(
-      obstacleImg,
-      obstacles[i].x,
-      obstacles[i].y,
-      obstacles[i].w,
-      obstacles[i].h,
-    );
-  }
-}
-function drawPlayer() {
-  ctx.drawImage(playerImg, player.x, player.y, player.w, player.h);
+  ctx.clearRect(0, 0, canvas.width, canvas.height)
+  drawPlayer()
+  drawObstacles()
 }
 
-function drawGround() {
-  ctx.fillStyle = "#67e14ec7";
-  ctx.fillRect(GROUND.x, GROUND.y, GROUND.w, GROUND.h);
-  
+
+
+function drawObstacles() {
+  for (const obs of obstacles) {
+    ctx.drawImage(obstacleImg, obs.x, obs.y, obs.w, obs.h)
+  }
+}
+
+function drawPlayer() {
+  ctx.drawImage(playerImg, player.x, player.y, player.w, player.h)
 }
 
 // =====================
 // COLLISION
 // =====================
-// to be reviewed when enemies are moving...
 function detectCollision() {
+  const pad = 20
+  for (const obs of obstacles) {
+    if (
+      player.x + pad < obs.x + obs.w &&
+      player.x + player.w - pad > obs.x &&
+      player.y + pad < obs.y + obs.h &&
+      player.y + player.h - pad > obs.y
+    ) {
+      endGame()
+      return 
+    }
+  }
+}
 
-    for (let i = 0; i < obstacles.length; i++) {
-      const enemy = obstacles[i];
-      if (
-        player.x < enemy.x + enemy.w &&
-        player.x + player.w > enemy.x &&
-        player.y < enemy.y + enemy.h &&
-        player.y + player.h > enemy.y
-      ) {
-        console.log("Collide!")
-        endGame();
-      }
+// =====================
+// SCORE
+// =====================
+function updateScore(delta) {
+  scoreTimer += delta
+  if (scoreTimer >= 100) {
+    score += 1
+    scoreTimer = 0
+    scoreEl.textContent = score
   }
 }
 
@@ -207,37 +221,39 @@ function detectCollision() {
 // LOOP
 // =====================
 function loop(timestamp) {
-   if (gameState !== "playing") return;
+  if (gameState !== "playing") return
 
-  const delta = 16; // approx one frame
+  const delta = lastTimestamp ? timestamp - lastTimestamp : 16
+  lastTimestamp = timestamp
 
-  updatePlayer(delta);
-  updateObstacles();
+  updatePlayer()
+  updateObstacles()
 
-  if (timestamp - lastSpawn >= SPAWN_INTERVAL) {
-    spawnObstacle();
-    lastSpawn = timestamp;
+  if (timestamp - lastSpawn >= nextSpawnInterval) {
+    spawnObstacle()
+    lastSpawn = timestamp
+    nextSpawnInterval = randomSpawnInterval()
   }
 
-  detectCollision();
-  //updateScore(delta);
-  draw();
+  detectCollision()
+  updateScore(delta) 
 
-  animationId = requestAnimationFrame(loop);
+  draw()
+
+  animationId = requestAnimationFrame(loop)
 }
 
 // =====================
-    //KEYBOARD INPUT
+// KEYBOARD INPUT
 // =====================
-
 function handleKeydown(e) {
   if (e.code === "Space" || e.code === "ArrowUp") {
-    e.preventDefault();
-    if (gameState === "idle") startGame();
-    else if (gameState === "gameover") startGame();
-    else jump();
+    e.preventDefault()
+    if (gameState === "idle") startGame()
+    else if (gameState === "gameover") startGame()
+    else jump()
   }
 }
 
 // Initial draw
-draw();
+// draw();
