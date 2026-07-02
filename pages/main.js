@@ -4,8 +4,11 @@ const startOverlay = document.getElementById("startOverlay")
 const gameOverOverlay = document.getElementById("gameOverOverlay")
 const scoreEl = document.getElementById("score")
 const finalScoreEl = document.getElementById("finalScore")
-const highScoreEl = document.getElementById("highScore")
-const gameoverSound = document.getElementById("gameoverSound")
+const highScoreEl = document.getElementById("highScore");
+const jumpSound = document.getElementById("jumpSound");
+const gameoverSound = document.getElementById("gameoverSound");
+const pointSound = document.getElementById("pointSound");
+console.log(jumpSound, gameoverSound, pointSound);
 
 
 let msPrev = window.performance.now()
@@ -81,7 +84,7 @@ function jump() {
   if (!player.isJumping && gameState === "playing") {
     player.vy = JUMP_FORCE
     player.isJumping = true
-    //jumpSound.play();
+    jumpSound.play();
   }
 }
 
@@ -120,7 +123,7 @@ function endGame() {
   }
 
   gameOverOverlay.classList.remove("hidden")
-  //gameoverSound.play();
+  gameoverSound.play();
 }
 
 //=============================
@@ -219,7 +222,8 @@ function updateScore(delta) {
   if (scoreTimer >= 100) {
     score += 1
     scoreTimer = 0
-    scoreEl.textContent = score
+    scoreEl.textContent = score;
+    pointSound.play();
   }
 }
 
