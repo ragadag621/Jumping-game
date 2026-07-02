@@ -313,12 +313,12 @@ function loop(timestamp) {
   detectCollision()
   updateScore(delta)
 
-  draw()
+  draw() 
 
   frames++
   animationId = requestAnimationFrame(loop)
 }
-
+//testing
 // =====================
 // KEYBOARD INPUT
 // =====================
