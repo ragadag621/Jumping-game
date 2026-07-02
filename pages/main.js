@@ -30,6 +30,8 @@ let nextSpawnInterval = 1500
 let lastTimestamp = 0
 let animationId = null
 let gameSpeed = 8
+let highScore = Number(localStorage.getItem("dinoHighScore") || 0)
+
 let highScore = Number(localStorage.getItem("player_ghostHighScore") || 0)
 let isDragging = false;
 
