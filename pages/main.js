@@ -7,6 +7,9 @@ const finalScoreEl = document.getElementById("finalScore")
 const highScoreEl = document.getElementById("highScore")
 const gameoverSound = document.getElementById("gameoverSound")
 
+
+
+
 // =====================
 // GAME STATE
 // =====================
@@ -241,7 +244,22 @@ function loop(timestamp) {
   draw()
 
   animationId = requestAnimationFrame(loop)
+
+  const msNow = window.performance.now()
+  const msPassed = msNow - msPrev
+
+  if (msPassed < msPerFrame) return
+
+  const excessTime = msPassed % msPerFrame
+  msPrev = msNow - excessTime
+
+  frames++
 }
+
+setInterval(() => {
+  console.log(frames)
+}, 1000)
+
 
 // =====================
 // KEYBOARD INPUT
