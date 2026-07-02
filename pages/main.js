@@ -229,8 +229,14 @@ function updateScore(delta) {
 function loop(timestamp) {
   if (gameState !== "playing") return
 
-  const delta = lastTimestamp ? timestamp - lastTimestamp : 16
-  lastTimestamp = timestamp
+  const msPassed = timestamp - msPrev
+  if (msPassed < msPerFrame) {
+    animationId = requestAnimationFrame(loop)
+    return
+  }
+  msPrev = timestamp
+
+  const delta = msPassed
 
   updatePlayer()
   updateObstacles()
@@ -242,21 +248,12 @@ function loop(timestamp) {
   }
 
   detectCollision()
-  updateScore(delta) 
+  updateScore(delta)
 
   draw()
 
-  animationId = requestAnimationFrame(loop)
-
-  const msNow = window.performance.now()
-  const msPassed = msNow - msPrev
-
-  if (msPassed < msPerFrame) return
-
-  const excessTime = msPassed % msPerFrame
-  msPrev = msNow - excessTime
-
   frames++
+  animationId = requestAnimationFrame(loop)
 }
 
 setInterval(() => {
