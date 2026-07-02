@@ -20,11 +20,15 @@
 
         <div id="startOverlay" class="overlay">
             <h2>Press Space to Start</h2>
+            <label for="volumeControl">Volume:</label>
+            <input type="range" id="volumeControl" min="0" max="1" step="0.1" value="0.5">
             <p>Jump over the obstacles!... <br> but watch out for the spikes! <br> They will end your game.</p>
         </div>
 
         <div id="gameOverOverlay" class="overlay hidden">
             <h2>Game Over</h2>
+            <label for="volumeControl">Volume:</label>
+            <input type="range" id="volumeControl" min="0" max="1" step="0.1" value="0.5">
             <p>Final Score: <span id="finalScore">0</span></p>
             <p>High Score: <span id="finallhighScore">0</span></p>
             <p>Press Space to Restart</p>

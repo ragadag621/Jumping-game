@@ -1,35 +1,37 @@
-const canvas = document.getElementById("game");
-const ctx = canvas.getContext("2d");
-const startOverlay = document.getElementById("startOverlay");
-const gameOverOverlay = document.getElementById("gameOverOverlay");
-const scoreEl = document.getElementById("score");
-const finalScoreEl = document.getElementById("finalScore");
-const finallhighScoreEl = document.getElementById("finallhighScore");
-const highScoreEl = document.getElementById("highScore");
-const jumpSound = document.getElementById("jumpSound");
-const gameoverSound = document.getElementById("gameoverSound");
-const pointSound = document.getElementById("pointSound");
-console.log(jumpSound, gameoverSound, pointSound);
+const canvas = document.getElementById("game")
+const ctx = canvas.getContext("2d")
+const startOverlay = document.getElementById("startOverlay")
+const gameOverOverlay = document.getElementById("gameOverOverlay")
+const scoreEl = document.getElementById("score")
+const finalScoreEl = document.getElementById("finalScore")
+const finallhighScoreEl = document.getElementById("finallhighScore")
+const highScoreEl = document.getElementById("highScore")
+const jumpSound = document.getElementById("jumpSound")
+const gameoverSound = document.getElementById("gameoverSound")
+const pointSound = document.getElementById("pointSound")
+const volControl = document.getElementById("volumeControl")
 
-let msPrev = window.performance.now();
-const fps = 60;
-const msPerFrame = 1000 / fps;
-let frames = 0;
+console.log(jumpSound, gameoverSound, pointSound)
+
+let msPrev = window.performance.now()
+const fps = 60
+const msPerFrame = 1000 / fps
+let frames = 0
 
 // =====================
 // GAME STATE
 // =====================
-let gameState = "idle"; // idle, playing, gameover
-let score = 0;
-let scoreTimer = 0;
-let scoreSound = 0;
-let lastSpawn = 0;
-let nextSpawnInterval = 1500;
-let lastTimestamp = 0;
-let animationId = null;
-let gameSpeed = 8;
-
-let highScore = Number(localStorage.getItem("dinoHighScore") || 0);
+let gameState = "idle" // idle, playing, gameover
+let score = 0
+let scoreTimer = 0
+let scoreSound = 0
+let lastSpawn = 0
+let nextSpawnInterval = 1500
+let lastTimestamp = 0
+let animationId = null
+let gameSpeed = 8
+let highScore = Number(localStorage.getItem("dinoHighScore") || 0)
+let isDragging = false;
 
 // =====================
 // GROUND
@@ -39,7 +41,7 @@ const GROUND = {
   y: 440,
   w: 800,
   h: 0,
-};
+}
 
 // =====================
 // PLAYER
@@ -52,41 +54,71 @@ const player = {
   groundY: GROUND.y - 40,
   vy: 0,
   isJumping: false,
-};
+}
 
 // =====================
 // PHYSICS
 // =====================
-const GRAVITY = 0.8;
-const JUMP_FORCE = -19;
+const GRAVITY = 0.8
+const JUMP_FORCE = -19
 
 // =====================
 // OBSTACLES
 // =====================
-let obstacles = [];
+let obstacles = []
 
 window.onload = function () {
-  canvas.width = 800;
-  canvas.height = 500;
-   highScore = 0;
-  draw();
-  document.addEventListener("keydown", handleKeydown);
+  canvas.width = 800
+  canvas.height = 500
+  let highScore = Number(localStorage.getItem("dinoHighScore") || 0)
+  const savedVolume = localStorage.getItem("gameVolume") || 0.5
+  volControl.value = savedVolume
+  pointSound.volume = savedVolume
+  jumpSound.volume = savedVolume
+  gameoverSound.volume = savedVolume
+  draw()
+  document.addEventListener("keydown", handleKeydown)
 
-  canvas.addEventListener("mousedown", handleTap);
-  canvas.addEventListener("touchstart", handleTap, { passive: false });
-};
+  canvas.addEventListener("mousedown", handleTap)
+  canvas.addEventListener("touchstart", handleTap, { passive: false })
+}
+
+// =====================
+// VOLUME CONTROL
+// =====================
+volControl.addEventListener("mousedown", () => {
+    isDragging = true;
+});
+
+volControl.addEventListener("mousemove", (e) => {
+    if (isDragging) {
+        updateVolumes(e.target.value);
+    }
+});
+
+window.addEventListener("mouseup", () => {
+    isDragging = false;
+});
+
+function updateVolumes(value) {
+    pointSound.volume = value;
+    jumpSound.volume = value;
+    gameoverSound.volume = value;
+    console.log("Volume is now: " + value);
+}
+
 
 function handleTap(e) {
-  e.preventDefault();
-  if (gameState === "idle" || gameState === "gameover") startGame();
-  else jump();
+  e.preventDefault()
+  if (gameState === "idle" || gameState === "gameover") startGame()
+  else jump()
 }
 
 function jump() {
   if (!player.isJumping && gameState === "playing") {
-    player.vy = JUMP_FORCE;
-    player.isJumping = true;
-    jumpSound.play();
+    player.vy = JUMP_FORCE
+    player.isJumping = true
+    jumpSound.play()
   }
 }
 
@@ -94,51 +126,51 @@ function jump() {
 //  START/END GAME
 //===================
 function startGame() {
-  gameState = "playing";
-  score = 0;
-  scoreTimer = 0;
-  scoreSound = 0;
-  gameSpeed = 8;
-  obstacles = [];
-  lastSpawn = performance.now();
-  lastTimestamp = 0;
-  nextSpawnInterval = randomSpawnInterval();
-  player.y = player.groundY;
-  player.vy = 0;
-  player.isJumping = false;
-  scoreEl.textContent = "0";
-  startOverlay.classList.add("hidden");
-  gameOverOverlay.classList.add("hidden");
+  gameState = "playing"
+  score = 0
+  scoreTimer = 0
+  scoreSound = 0
+  gameSpeed = 8
+  obstacles = []
+  lastSpawn = performance.now()
+  lastTimestamp = 0
+  nextSpawnInterval = randomSpawnInterval()
+  player.y = player.groundY
+  player.vy = 0
+  player.isJumping = false
+  scoreEl.textContent = "0"
+  startOverlay.classList.add("hidden")
+  gameOverOverlay.classList.add("hidden")
 
-  animationId = requestAnimationFrame(loop);
+  animationId = requestAnimationFrame(loop)
 }
 
 function endGame() {
-  gameState = "gameover";
-  cancelAnimationFrame(animationId);
-  finalScoreEl.textContent = score;
-  highScoreEl.textContent = highScore;
-  finallhighScoreEl.textContent = highScore;
+  gameState = "gameover"
+  cancelAnimationFrame(animationId)
+  finalScoreEl.textContent = score
+  highScoreEl.textContent = highScore
+  finallhighScoreEl.textContent = highScore
 
   if (score > highScore) {
-    highScore = score;
-    localStorage.setItem("dinoHighScore", highScore);
+    highScore = score
+    localStorage.setItem("dinoHighScore", highScore)
   }
 
-  gameOverOverlay.classList.remove("hidden");
-  gameoverSound.play();
+  gameOverOverlay.classList.remove("hidden")
+  gameoverSound.play()
 }
 
 //=============================
 // PLAYER UPDATE WRT GRAVITY
 //==============================
 function updatePlayer() {
-  player.vy += GRAVITY;
-  player.y += player.vy;
+  player.vy += GRAVITY
+  player.y += player.vy
   if (player.y >= player.groundY) {
-    player.y = player.groundY;
-    player.isJumping = false;
-    player.vy = 0;
+    player.y = player.groundY
+    player.isJumping = false
+    player.vy = 0
   }
 }
 
@@ -146,61 +178,61 @@ function updatePlayer() {
 // OBSTACLE SPAWN / UPDATE
 //=====================
 function randomSpawnInterval() {
-  const base = 1000 + Math.random() * 1000;
-  return base * (8 / gameSpeed);
+  const base = 1000 + Math.random() * 1000
+  return base * (8 / gameSpeed)
 }
 
 function spawnObstacle() {
-  const height = 135;
-  const width = 75;
+  const height = 135
+  const width = 75
   obstacles.push({
     x: canvas.width,
     y: GROUND.y - 70,
     w: width,
     h: height,
     passed: false,
-  });
+  })
 }
 
 function updateObstacles() {
-  gameSpeed += 0.001;
+  gameSpeed += 0.001
   for (const obs of obstacles) {
-    obs.x -= gameSpeed;
+    obs.x -= gameSpeed
   }
 
-  obstacles = obstacles.filter((obs) => obs.x + obs.w > 0);
+  obstacles = obstacles.filter((obs) => obs.x + obs.w > 0)
 }
 
-const playerImg = new Image();
-playerImg.src = "img/dino.png";
+const playerImg = new Image()
+playerImg.src = "img/dino.png"
 
-const obstacleImg = new Image();
-obstacleImg.src = "img/cactus1.png";
+const obstacleImg = new Image()
+obstacleImg.src = "img/cactus1.png"
 
 // =====================
 // DRAW
 // =====================
 function draw() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  drawPlayer();
-  drawObstacles();
+  ctx.clearRect(0, 0, canvas.width, canvas.height)
+  drawPlayer()
+  drawObstacles()
 }
 
 function drawObstacles() {
   for (const obs of obstacles) {
-    ctx.drawImage(obstacleImg, obs.x, obs.y, obs.w, obs.h);
+    ctx.drawImage(obstacleImg, obs.x, obs.y, obs.w, obs.h)
   }
 }
 
 function drawPlayer() {
-  ctx.drawImage(playerImg, player.x, player.y, player.w, player.h);
+  ctx.drawImage(playerImg, player.x, player.y, player.w, player.h)
 }
 
 // =====================
 // COLLISION
 // =====================
 function detectCollision() {
-  const pad = 20;
+  const pad = 20
   for (const obs of obstacles) {
     if (
       player.x + pad < obs.x + obs.w &&
@@ -208,8 +240,8 @@ function detectCollision() {
       player.y + pad < obs.y + obs.h &&
       player.y + player.h - pad > obs.y
     ) {
-      endGame();
-      return;
+      endGame()
+      return
     }
   }
 }
@@ -218,18 +250,18 @@ function detectCollision() {
 // SCORE
 // =====================
 function updateScore(delta) {
-  scoreTimer += delta;
+  scoreTimer += delta
   if (scoreTimer >= 100) {
-    score += 1;
-    highScore = Math.max(highScore, score);
-    scoreTimer = 0;
-    scoreSound += 1;
+    score += 1
+    highScore = Math.max(highScore, score)
+    scoreTimer = 0
+    scoreSound += 1
     if (scoreSound === 100) {
-      pointSound.play();
-      scoreSound = 0;
+      pointSound.play()
+      scoreSound = 0
     }
-    scoreEl.textContent = score;
-    console.log(scoreSound);
+    scoreEl.textContent = score
+    console.log(scoreSound)
   }
 }
 
@@ -237,33 +269,33 @@ function updateScore(delta) {
 // LOOP
 // =====================
 function loop(timestamp) {
-  if (gameState !== "playing") return;
+  if (gameState !== "playing") return
 
-  const msPassed = timestamp - msPrev;
+  const msPassed = timestamp - msPrev
   if (msPassed < msPerFrame) {
-    animationId = requestAnimationFrame(loop);
-    return;
+    animationId = requestAnimationFrame(loop)
+    return
   }
-  msPrev = timestamp;
+  msPrev = timestamp
 
-  const delta = msPassed;
+  const delta = msPassed
 
-  updatePlayer();
-  updateObstacles();
+  updatePlayer()
+  updateObstacles()
 
   if (timestamp - lastSpawn >= nextSpawnInterval) {
-    spawnObstacle();
-    lastSpawn = timestamp;
-    nextSpawnInterval = randomSpawnInterval();
+    spawnObstacle()
+    lastSpawn = timestamp
+    nextSpawnInterval = randomSpawnInterval()
   }
 
-  detectCollision();
-  updateScore(delta);
+  detectCollision()
+  updateScore(delta)
 
-  draw();
+  draw()
 
-  frames++;
-  animationId = requestAnimationFrame(loop);
+  frames++
+  animationId = requestAnimationFrame(loop)
 }
 
 // =====================
@@ -271,10 +303,10 @@ function loop(timestamp) {
 // =====================
 function handleKeydown(e) {
   if (e.code === "Space" || e.code === "ArrowUp") {
-    e.preventDefault();
-    if (gameState === "idle") startGame();
-    else if (gameState === "gameover") startGame();
-    else jump();
+    e.preventDefault()
+    if (gameState === "idle") startGame()
+    else if (gameState === "gameover") startGame()
+    else jump()
   }
 }
 
