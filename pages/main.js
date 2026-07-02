@@ -30,7 +30,7 @@ let nextSpawnInterval = 1500
 let lastTimestamp = 0
 let animationId = null
 let gameSpeed = 8
-let highScore = Number(localStorage.getItem("dinoHighScore") || 0)
+let highScore = Number(localStorage.getItem("player_ghostHighScore") || 0)
 let isDragging = false;
 
 // =====================
@@ -70,7 +70,7 @@ let obstacles = []
 window.onload = function () {
   canvas.width = 800
   canvas.height = 500
-  let highScore = Number(localStorage.getItem("dinoHighScore") || 0)
+  let highScore = Number(localStorage.getItem("player_ghostHighScore") || 0)
   const savedVolume = localStorage.getItem("gameVolume") || 0.5
   volControl.value = savedVolume
   pointSound.volume = savedVolume
@@ -154,7 +154,7 @@ function endGame() {
 
   if (score > highScore) {
     highScore = score
-    localStorage.setItem("dinoHighScore", highScore)
+    localStorage.setItem("player_ghostHighScore", highScore)
   }
 
   gameOverOverlay.classList.remove("hidden")
@@ -182,14 +182,22 @@ function randomSpawnInterval() {
   return base * (8 / gameSpeed)
 }
 
+const enemy_type = {
+  spike:    { w: 75,  h: 135 },
+  skeleton: { w: 60,  h: 100 },
+  spider:   { w: 80,  h: 60  },
+}
+
 function spawnObstacle() {
-  const height = 135
-  const width = 75
+  const names = Object.keys(enemy_type)
+  const type = names[Math.floor(Math.random() * names.length)]
+  const { w, h } = enemy_type[type]
   obstacles.push({
     x: canvas.width,
-    y: GROUND.y - 70,
-    w: width,
-    h: height,
+    y: GROUND.y - h  + 60,
+    w: w,
+    h: h,
+    type: type,
     passed: false,
   })
 }
@@ -204,10 +212,16 @@ function updateObstacles() {
 }
 
 const playerImg = new Image()
-playerImg.src = "img/dino.png"
+playerImg.src = "img/player_ghost.png"
 
 const obstacleImg = new Image()
-obstacleImg.src = "img/cactus1.png"
+obstacleImg.src = "img/spike_enemy.png"
+
+const obstacleImg2 = new Image()
+obstacleImg2.src = "img/skeleton_enemy.png"
+
+const obstacleImg3 = new Image()
+obstacleImg3.src = "img/spider_enemy.png"
 
 // =====================
 // DRAW
@@ -219,10 +233,17 @@ function draw() {
 }
 
 function drawObstacles() {
+  const IMAGES = {
+    spike: obstacleImg,
+    skeleton: obstacleImg2,
+    spider: obstacleImg3,
+  }
   for (const obs of obstacles) {
-    ctx.drawImage(obstacleImg, obs.x, obs.y, obs.w, obs.h)
+    const img = IMAGES[obs.type]
+    if (img) ctx.drawImage(img, obs.x, obs.y, obs.w, obs.h)
   }
 }
+
 
 function drawPlayer() {
   ctx.drawImage(playerImg, player.x, player.y, player.w, player.h)
@@ -310,5 +331,3 @@ function handleKeydown(e) {
   }
 }
 
-// Initial draw
-// draw();
