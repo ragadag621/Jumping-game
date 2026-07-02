@@ -22,6 +22,7 @@ let frames = 0
 let gameState = "idle" // idle, playing, gameover
 let score = 0
 let scoreTimer = 0
+let scoreSound = 0
 let lastSpawn = 0
 let nextSpawnInterval = 1500 
 let lastTimestamp = 0 
@@ -96,6 +97,7 @@ function startGame() {
   gameState = "playing"
   score = 0
   scoreTimer = 0
+  scoreSound = 0
   gameSpeed = 8
   obstacles = []
   lastSpawn = performance.now()
@@ -222,9 +224,16 @@ function updateScore(delta) {
   if (scoreTimer >= 100) {
     score += 1
     scoreTimer = 0
-    scoreEl.textContent = score;
+    scoreSound += 1
+    if(scoreSound === 100)
+  {
     pointSound.play();
+    scoreSound = 0
   }
+    scoreEl.textContent = score;
+    console.log(scoreSound)
+  }
+
 }
 
 // =====================
@@ -258,12 +267,11 @@ function loop(timestamp) {
 
   frames++
   animationId = requestAnimationFrame(loop)
-  console.log(gameSpeed)
 }
 
-setInterval(() => {
-  console.log(frames)
-}, 1000)
+// setInterval(() => {
+//   console.log(frames)
+// }, 1000)
 
 
 // =====================
