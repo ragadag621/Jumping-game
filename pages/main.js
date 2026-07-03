@@ -31,7 +31,7 @@ let lastTimestamp = 0
 let animationId = null
 let gameSpeed = 8
 let highScore = Number(localStorage.getItem("player_ghostHighScore") || 0)
-let isDragging = false;
+let isDragging = false
 
 // =====================
 // GROUND
@@ -48,13 +48,20 @@ const GROUND = {
 // =====================
 const player = {
   x: 50,
-  y: GROUND.y - 90,
-  w: 90,
-  h: 90,
-  groundY: GROUND.y - 40,
+  y: GROUND.y - 150,
+  w: 120,
+  h: 120,
+  groundY: GROUND.y - 60,
   vy: 0,
   isJumping: false,
 }
+let currentFrame = 0
+let frameTimer = 0
+
+const FRAME_WIDTH = 128
+const FRAME_HEIGHT = 128
+const TOTAL_FRAMES = 6
+const FRAME_DELAY = 100
 
 // =====================
 // PHYSICS
@@ -87,26 +94,39 @@ window.onload = function () {
 // VOLUME CONTROL
 // =====================
 volControl.addEventListener("mousedown", () => {
-    isDragging = true;
-});
+  isDragging = true
+})
 
 volControl.addEventListener("mousemove", (e) => {
-    if (isDragging) {
-        updateVolumes(e.target.value);
-    }
-});
+  if (isDragging) {
+    updateVolumes(e.target.value)
+  }
+})
 
 window.addEventListener("mouseup", () => {
-    isDragging = false;
-});
+  isDragging = false
+})
 
 function updateVolumes(value) {
-    pointSound.volume = value;
-    jumpSound.volume = value;
-    gameoverSound.volume = value;
-    console.log("Volume is now: " + value);
+  pointSound.volume = value
+  jumpSound.volume = value
+  gameoverSound.volume = value
+  console.log("Volume is now: " + value)
 }
 
+function updateAnimation(delta) {
+  frameTimer += delta
+
+  if (frameTimer >= FRAME_DELAY) {
+    currentFrame++
+
+    if (currentFrame >= TOTAL_FRAMES) {
+      currentFrame = 0
+    }
+
+    frameTimer = 0
+  }
+}
 
 function handleTap(e) {
   e.preventDefault()
@@ -183,9 +203,9 @@ function randomSpawnInterval() {
 }
 
 const enemy_type = {
-  spike:    { w: 75,  h: 135 },
-  skeleton: { w: 60,  h: 100 },
-  spider:   { w: 80,  h: 60  },
+  spike: { w: 75, h: 135 },
+  skeleton: { w: 90, h: 100 },
+  spider: { w: 50, h: 100 },
 }
 
 function spawnObstacle() {
@@ -194,7 +214,7 @@ function spawnObstacle() {
   const { w, h } = enemy_type[type]
   obstacles.push({
     x: canvas.width,
-    y: GROUND.y - h  + 60,
+    y: GROUND.y - h / 2,
     w: w,
     h: h,
     type: type,
@@ -212,16 +232,16 @@ function updateObstacles() {
 }
 
 const playerImg = new Image()
-playerImg.src = "img/player_ghost.png"
+playerImg.src = "img/player.png"
 
-const obstacleImg = new Image()
-obstacleImg.src = "img/spike_enemy.png"
+const RIPimg = new Image()
+RIPimg.src = "img/skeleton_enemy.png"
 
 const obstacleImg2 = new Image()
-obstacleImg2.src = "img/skeleton_enemy.png"
+obstacleImg2.src = "img/ghost.png"
 
-const obstacleImg3 = new Image()
-obstacleImg3.src = "img/spider_enemy.png"
+const spikeimg = new Image()
+spikeimg.src = "img/spike_enemy.png"
 
 // =====================
 // DRAW
@@ -233,27 +253,67 @@ function draw() {
 }
 
 function drawObstacles() {
-  const IMAGES = {
-    spike: obstacleImg,
-    skeleton: obstacleImg2,
-    spider: obstacleImg3,
-  }
   for (const obs of obstacles) {
-    const img = IMAGES[obs.type]
-    if (img) ctx.drawImage(img, obs.x, obs.y, obs.w, obs.h)
+    if (obs.type === "spike") {
+      ctx.drawImage(spikeimg, obs.x, obs.y, obs.w, obs.h)
+    //   ctx.strokeStyle = "red"
+    //   ctx.lineWidth = 2
+    //   ctx.strokeRect(obs.x, obs.y, obs.w, obs.h)
+    } else if (obs.type === "skeleton") {
+      ctx.drawImage(
+        obstacleImg2,
+
+        currentFrame * 190+20,
+        10,
+
+        190,
+        130,
+
+        obs.x,
+        obs.y,
+
+        obs.w,
+        obs.h,
+      )
+    //   ctx.strokeStyle = "red"
+    //   ctx.lineWidth = 2
+    //   ctx.strokeRect(obs.x, obs.y , obs.w, obs.h)
+    } else if (obs.type === "spider") {
+      ctx.drawImage(RIPimg, obs.x, obs.y, obs.w, obs.h)
+        // ctx.strokeStyle = "red"
+        // ctx.lineWidth = 2
+        // ctx.strokeRect(obs.x, obs.y, obs.w, obs.h)
+    }
   }
 }
 
-
 function drawPlayer() {
-  ctx.drawImage(playerImg, player.x, player.y, player.w, player.h)
+  ctx.drawImage(
+    playerImg,
+
+    currentFrame * 165,
+    0,
+
+    165,
+    176,
+
+    player.x,
+    player.y,
+
+    player.w,
+    player.h,
+  )
+  //(Debug Box)
+    // ctx.strokeStyle = "red"
+    // ctx.lineWidth = 2
+    // ctx.strokeRect(player.x, player.y, player.w, player.h)
 }
 
 // =====================
 // COLLISION
 // =====================
 function detectCollision() {
-  const pad = 20
+  const pad = 30
   for (const obs of obstacles) {
     if (
       player.x + pad < obs.x + obs.w &&
@@ -302,6 +362,7 @@ function loop(timestamp) {
   const delta = msPassed
 
   updatePlayer()
+  updateAnimation(delta)
   updateObstacles()
 
   if (timestamp - lastSpawn >= nextSpawnInterval) {
@@ -313,7 +374,7 @@ function loop(timestamp) {
   detectCollision()
   updateScore(delta)
 
-  draw() 
+  draw()
 
   frames++
   animationId = requestAnimationFrame(loop)
@@ -330,4 +391,3 @@ function handleKeydown(e) {
     else jump()
   }
 }
-

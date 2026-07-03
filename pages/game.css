@@ -30,11 +30,14 @@ body {
     border-radius: 4px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     background-image: url("../img/background.png");
+    background-position: 0% 0% ;
+    background-size: cover;
   }
 
 canvas{
     border: 2px solid black;
     display: block;
+    width: 100%;
 }
 .hud {
     position: absolute;
