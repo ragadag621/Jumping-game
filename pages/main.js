@@ -1,4 +1,3 @@
-(function(){
 // =====================
 // DOM ELEMENTS
 // =====================
@@ -445,4 +444,3 @@ function loop(timestamp) {
   frames++
   animationId = requestAnimationFrame(loop)
 }
-})();
