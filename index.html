@@ -1,42 +1,66 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="pages/game.css">
-    <script src="pages/main.js" defer></script>
-    <audio id="jumpSound" src="audio/jump.mp3"></audio>
-    <audio id="gameoverSound" src="audio/gameover.mp3"></audio>
-    <audio id="pointSound" src="audio/point.mp3"></audio>
-    <title>jumping game </title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Jumping Game</title>
+
+  <link rel="stylesheet" href="pages/game.css">
+  <script src="pages/main.js" defer></script>
+
+  <!-- Sound effects -->
+  <audio id="jumpSound" src="audio/jump.mp3"></audio>
+  <audio id="gameoverSound" src="audio/gameover.mp3"></audio>
+  <audio id="pointSound" src="audio/point.mp3"></audio>
 </head>
 <body>
-    <h1>Jumping Game</h1>
-   <section class="game-wrapper">
- 
-  
+  <h1>Jumping Game</h1>
 
+  <section class="game-wrapper">
     <canvas id="game"></canvas>
-    <div class="hud">Score: <span id="score">0</span> <p>High Score: <span id="highScore">0</span></p>
-</div>
 
-        <div id="startOverlay" class="overlay">
-            <h2>Press Space to Start</h2>
-            <p>Jump over the obstacles!... <br> but watch out for the spikes! <br> They will end your game.</p>
+    <div class="hud">
+      Score: <span id="score">0</span>
+      <p>High Score: <span id="highScore">0</span></p>
+    </div>
+
+    <div id="startOverlay" class="overlay">
+      <h2>Get Ready!</h2>
+      <!-- Shown only on mouse/keyboard devices -->
+      <p class="controls-hint controls-desktop">
+        Press <strong>Space</strong> / <strong>&uarr;</strong> or click to jump
+      </p>
+      <!-- Shown only on touch devices (phones/tablets) -->
+      <p class="controls-hint controls-mobile">
+        Tap anywhere on the screen to jump
+      </p>
+      <p>Jump over the obstacles!... <br>but watch out for the spikes! <br>They will end your game.</p>
+    </div>
+
+    <div id="gameOverOverlay" class="overlay hidden">
+      <h2>Game Over</h2>
+
+      <div class="volume-panel">
+        <div class="volume-row">
+          <label for="jumpVolume">Jump Volume:</label>
+          <input type="range" id="jumpVolume" min="0" max="1" step="0.1">
         </div>
-
-        <div id="gameOverOverlay" class="overlay hidden">
-            <h2>Game Over</h2>
-            <label for="volumeControl">Volume:</label>
-            <input type="range" id="volumeControl" min="0" max="1" step="0.1" >
-            <p>Final Score: <span id="finalScore">0</span></p>
-            <p>High Score: <span id="finallhighScore">0</span></p>
-            <p>Press Space to Restart</p>
+        <div class="volume-row">
+          <label for="pointVolume">Point Volume:</label>
+          <input type="range" id="pointVolume" min="0" max="1" step="0.1">
         </div>
-   </section>
-    
+        <div class="volume-row">
+          <label for="gameoverVolume">Game Over :</label>
+          <input type="range" id="gameoverVolume" min="0" max="1" step="0.1">
+        </div>
+      </div>
 
-    
+      <p>Final Score: <span id="finalScore">0</span></p>
+      <p>High Score: <span id="finalHighScore">0</span></p>
+
+      <p class="controls-hint controls-desktop">Press Space to Restart</p>
+      <p class="controls-hint controls-mobile">Tap to Restart</p>
+    </div>
+  </section>
 </body>
 </html>
