@@ -1,83 +1,152 @@
-*{
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
+/* =====================
+   RESET
+===================== */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
-
-
-
+/* =====================
+   PAGE LAYOUT
+===================== */
 body {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    min-height: 100vh;
-    background: #1b1b1b;
-    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-  }
-
-  h1 {
-    margin-bottom: 12px;
-    color: #535353;
-    font-size: 1.5rem;
-  }
-
-  .game-wrapper {
-    position: relative;
-    width: 800px;
-    border: 2px solid #535353;
-    border-radius: 4px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    background-image: url("../img/background.png");
-    background-position: 0% 0% ;
-    background-size: cover;
-  }
-
-canvas{
-    border: 2px solid black;
-    display: block;
-    width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background: #1b1b1b;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  padding: 12px;
 }
+
+h1 {
+  margin-bottom: 12px;
+  color: #535353;
+  font-size: clamp(1.1rem, 4vw, 1.5rem);
+  text-align: center;
+}
+
+/* =====================
+   GAME CONTAINER (responsive)
+===================== */
+.game-wrapper {
+  position: relative;
+  width: 100%;
+  max-width: 800px;
+  aspect-ratio: 8 / 5;
+  border: 2px solid #535353;
+  border-radius: 4px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  background-color: #2b2b2b;
+  touch-action: manipulation;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* =====================
+   HUD (score display)
+===================== */
 .hud {
-    position: absolute;
-    top: 12px;
-    right: 16px;
-    font-size: 1.1rem;
-    font-weight: bold;
-    color: #dbdbdb;
-    font-family: monospace;
-    pointer-events: none;
-  }
+  position: absolute;
+  top: 12px;
+  right: 16px;
+  font-size: clamp(0.85rem, 2.5vw, 1.1rem);
+  font-weight: bold;
+  color: #dbdbdb;
+  font-family: monospace;
+  pointer-events: none;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
+}
 
-  .overlay {
-    position: absolute;
-    inset: 0;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    background: rgba(255, 255, 255, 0.322);
-    text-align: center;
-    color: #dbdbdb;
-  }
+/* =====================
+   OVERLAYS (start / game over screens)
+===================== */
+.overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 16px;
+  background: rgba(0, 0, 0, 0.55);
+  text-align: center;
+  color: #f1f1f1;
+}
 
-  .overlay.hidden {
+.overlay.hidden {
+  display: none;
+}
+
+.overlay h2 {
+  font-size: clamp(1.1rem, 4vw, 1.4rem);
+  margin-bottom: 4px;
+}
+
+.overlay p {
+  font-size: clamp(0.8rem, 2.5vw, 0.95rem);
+  line-height: 1.6;
+}
+
+.controls-hint {
+  font-weight: bold;
+  color: #ffd166;
+}
+
+.controls-mobile {
+  display: none;
+}
+
+@media (hover: none) and (pointer: coarse) {
+  .controls-desktop {
     display: none;
   }
-
-  .overlay h2 {
-    font-size: 1.4rem;
-    margin-bottom: 8px;
+  .controls-mobile {
+    display: block;
   }
+}
 
-  .overlay p {
-    font-size: 0.95rem;
-    line-height: 1.6;
-  }
+/* =====================
+   VOLUME CONTROLS (3 independent sliders)
+===================== */
+.volume-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 8px 0;
+  width: 100%;
+  max-width: 260px;
+}
 
-  .instructions {
-    margin-top: 12px;
-    color: #888;
-    font-size: 0.9rem;
-  }
+.volume-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  font-size: clamp(0.75rem, 2.2vw, 0.9rem);
+}
+
+.volume-row label {
+  min-width: 72px;
+  text-align: left;
+}
+
+.volume-row input[type="range"] {
+  flex: 1;
+}
+
+.instructions {
+  margin-top: 12px;
+  color: #888;
+  font-size: 0.9rem;
+}
