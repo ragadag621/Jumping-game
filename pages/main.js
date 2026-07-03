@@ -38,7 +38,6 @@ let frames = 0
 // =====================
 let gameState = "idle" // idle, playing, gameover
 let score = 0
-let scoreTimer = 0
 let scoreSound = 0
 let lastSpawn = 0
 let nextSpawnInterval = 1500
@@ -187,7 +186,6 @@ function jump() {
 function startGame() {
   gameState = "playing"
   score = 0
-  scoreTimer = 0
   scoreSound = 0
   gameSpeed = 8
   bgOffset = 0
@@ -394,20 +392,20 @@ function detectCollision() {
 // =====================
 // SCORE
 // =====================
-function updateScore(delta) {
-  scoreTimer += delta
-  if (scoreTimer >= 100) {
-    score += 1
-    highScore = Math.max(highScore, score)
-    scoreTimer = 0
-    scoreSound += 1
+function updateScore() {
+  for (const obs of obstacles) {
+    if (!obs.passed && player.x > obs.x + obs.w) {
+      obs.passed = true
+      score += 1
+      highScore = Math.max(highScore, score)
+      scoreEl.textContent = score
 
-    if (scoreSound === 100) {
-      pointSound.play()
-      scoreSound = 0
+      scoreSound += 1
+      if (scoreSound === 100) {
+        pointSound.play()
+        scoreSound = 0
+      }
     }
-
-    scoreEl.textContent = score
   }
 }
 
@@ -438,7 +436,7 @@ function loop(timestamp) {
   }
 
   detectCollision()
-  updateScore(delta)
+  updateScore()
   draw()
 
   frames++

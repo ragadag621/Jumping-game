@@ -1,3 +1,9 @@
+@font-face {
+  font-family: "Creepster";
+  src: url("../fonts/Creepster-Regular.ttf");
+}
+
+
 /* =====================
    RESET
 ===================== */
@@ -23,9 +29,10 @@ body {
 
 h1 {
   margin-bottom: 12px;
-  color: #535353;
-  font-size: clamp(1.1rem, 4vw, 1.5rem);
+  color: #ffa42c;
+  font-size: clamp(2.1rem, 4vw, 1.5rem);
   text-align: center;
+  font-family: "Creepster";
 }
 
 /* =====================
