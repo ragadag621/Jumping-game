@@ -1,10 +1,8 @@
 ﻿# Jumping game
-# URL:https://ragadag621.github.io/Jumping-game/
-
 
 A side scrolling jumping game where score for each obstacle avoided, built with JavaScript. This project was developed as a technical assignment to demonstrate clean code principles, logic implementation, and effective error handling.
 
-## Live Demo: [(https://ragadag621.github.io/Jumping-game/)]
+## Live Demo: [https://ragadag621.github.io/Jumping-game/]
 
 ## Features
 * **Jump to win:** Control the player character and jump over the obstacles to increase your score.
