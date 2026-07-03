@@ -1,18 +1,34 @@
+(function(){
+// =====================
+// DOM ELEMENTS
+// =====================
+const gameWrapper = document.querySelector(".game-wrapper")
 const canvas = document.getElementById("game")
 const ctx = canvas.getContext("2d")
 const startOverlay = document.getElementById("startOverlay")
 const gameOverOverlay = document.getElementById("gameOverOverlay")
 const scoreEl = document.getElementById("score")
 const finalScoreEl = document.getElementById("finalScore")
-const finallhighScoreEl = document.getElementById("finallhighScore")
+const finalHighScoreEl = document.getElementById("finalHighScore")
 const highScoreEl = document.getElementById("highScore")
 const jumpSound = document.getElementById("jumpSound")
 const gameoverSound = document.getElementById("gameoverSound")
 const pointSound = document.getElementById("pointSound")
-const volControl = document.getElementById("volumeControl")
 
-console.log(jumpSound, gameoverSound, pointSound)
+// One independent slider per sound effect
+const jumpVolumeControl = document.getElementById("jumpVolume")
+const pointVolumeControl = document.getElementById("pointVolume")
+const gameoverVolumeControl = document.getElementById("gameoverVolume")
 
+// Set DEBUG to true to draw hitboxes on top of the sprites
+const DEBUG = false
+
+const CANVAS_W = 800
+const CANVAS_H = 500
+
+// =====================
+// TIMING
+// =====================
 let msPrev = window.performance.now()
 const fps = 60
 const msPerFrame = 1000 / fps
@@ -27,11 +43,12 @@ let scoreTimer = 0
 let scoreSound = 0
 let lastSpawn = 0
 let nextSpawnInterval = 1500
-let lastTimestamp = 0
 let animationId = null
 let gameSpeed = 8
 let highScore = Number(localStorage.getItem("player_ghostHighScore") || 0)
-let isDragging = false
+
+let bgOffset = 0
+const BG_PARALLAX_FACTOR = 1 // background moves slower than obstacles = depth
 
 // =====================
 // GROUND
@@ -40,7 +57,7 @@ const GROUND = {
   x: 0,
   y: 440,
   w: 800,
-  h: -35,
+  h: 0,
 }
 
 // =====================
@@ -55,12 +72,10 @@ const player = {
   vy: 0,
   isJumping: false,
 }
+
 let currentFrame = 0
 let frameTimer = 0
 
-const FRAME_WIDTH = 128
-const FRAME_HEIGHT = 128
-const TOTAL_FRAMES = 6
 const FRAME_DELAY = 100
 
 // =====================
@@ -74,66 +89,89 @@ const JUMP_FORCE = -19
 // =====================
 let obstacles = []
 
-window.onload = function () {
-  canvas.width = 800
-  canvas.height = 500
-  let highScore = Number(localStorage.getItem("player_ghostHighScore") || 0)
-  const savedVolume = localStorage.getItem("gameVolume") || 0.5
-  volControl.value = savedVolume
-  pointSound.volume = savedVolume
-  jumpSound.volume = savedVolume
-  gameoverSound.volume = savedVolume
-  draw()
-  document.addEventListener("keydown", handleKeydown)
+const enemy_type = {
+  spike: { w: 75, h: 135 },
+  skeleton: { w: 50, h: 100 },
+  RIP: { w: 90, h: 90  },
+}
 
-  canvas.addEventListener("mousedown", handleTap)
-  canvas.addEventListener("touchstart", handleTap, { passive: false })
-  ctx.fillStyle = "black"
-  ctx.fillRect(GROUND.x, GROUND.y + 85, GROUND.w, GROUND.h)
+// =====================
+// SPRITES
+// =====================
+const playerImg = new Image()
+playerImg.src = "img/ghost.png"
+
+const skeletonEnemyImg = new Image()
+skeletonEnemyImg.src = "img/skeleton_enemy.png"
+
+const RIPImg = new Image()
+RIPImg.src = "img/RIP.png"
+
+const spikeImg = new Image()
+spikeImg.src = "img/spike_enemy.png"
+
+
+const bgImg = new Image()
+bgImg.src = "img/Bg1.png"
+let bgTileWidth = 0
+bgImg.onload = () => {
+  bgTileWidth = (bgImg.naturalWidth / bgImg.naturalHeight) * CANVAS_H
+  if (gameState !== "playing") draw() 
+}
+
+// =====================
+// INIT
+// =====================
+window.onload = function () {
+  canvas.width = CANVAS_W
+  canvas.height = CANVAS_H
+
+  highScoreEl.textContent = highScore
+
+  setupVolumeSlider(jumpVolumeControl, jumpSound, "jumpVolume")
+  setupVolumeSlider(pointVolumeControl, pointSound, "pointVolume")
+  setupVolumeSlider(gameoverVolumeControl, gameoverSound, "gameoverVolume")
+
+  draw()
+
+  document.addEventListener("keydown", handleKeydown)
+  gameWrapper.addEventListener("mousedown", handleTap)
+  gameWrapper.addEventListener("touchstart", handleTap, { passive: false })
+  
 }
 
 // =====================
 // VOLUME CONTROL
 // =====================
-volControl.addEventListener("mousedown", () => {
-  isDragging = true
-})
 
-volControl.addEventListener("mousemove", (e) => {
-  if (isDragging) {
-    updateVolumes(e.target.value)
-  }
-})
+function setupVolumeSlider(sliderEl, audioEl, storageKey) {
+  const savedVolume = localStorage.getItem(storageKey) ?? 0.5
+  sliderEl.value = savedVolume
+  audioEl.volume = savedVolume
 
-window.addEventListener("mouseup", () => {
-  isDragging = false
-})
-
-function updateVolumes(value) {
-  pointSound.volume = value
-  jumpSound.volume = value
-  gameoverSound.volume = value
-  console.log("Volume is now: " + value)
+  sliderEl.addEventListener("input", (e) => {
+    audioEl.volume = e.target.value
+    localStorage.setItem(storageKey, e.target.value)
+  })
 }
 
-function updateAnimation(delta) {
-  frameTimer += delta
-
-  if (frameTimer >= FRAME_DELAY) {
-    currentFrame++
-
-    if (currentFrame >= TOTAL_FRAMES) {
-      currentFrame = 0
-    }
-
-    frameTimer = 0
-  }
-}
-
+// =====================
+// INPUT
+// =====================
 function handleTap(e) {
+  if (e.target.closest("input, label")) return
+
   e.preventDefault()
   if (gameState === "idle" || gameState === "gameover") startGame()
   else jump()
+}
+
+function handleKeydown(e) {
+  if (e.code === "Space" || e.code === "ArrowUp") {
+    e.preventDefault()
+    if (gameState === "idle" || gameState === "gameover") startGame()
+    else jump()
+  }
 }
 
 function jump() {
@@ -144,22 +182,23 @@ function jump() {
   }
 }
 
-//===================
-//  START/END GAME
-//===================
+// =====================
+// START / END GAME
+// =====================
 function startGame() {
   gameState = "playing"
   score = 0
   scoreTimer = 0
   scoreSound = 0
   gameSpeed = 8
+  bgOffset = 0
   obstacles = []
   lastSpawn = performance.now()
-  lastTimestamp = 0
   nextSpawnInterval = randomSpawnInterval()
   player.y = player.groundY
   player.vy = 0
   player.isJumping = false
+
   scoreEl.textContent = "0"
   startOverlay.classList.add("hidden")
   gameOverOverlay.classList.add("hidden")
@@ -170,22 +209,23 @@ function startGame() {
 function endGame() {
   gameState = "gameover"
   cancelAnimationFrame(animationId)
-  finalScoreEl.textContent = score
-  highScoreEl.textContent = highScore
-  finallhighScoreEl.textContent = highScore
 
   if (score > highScore) {
     highScore = score
     localStorage.setItem("player_ghostHighScore", highScore)
   }
 
+  finalScoreEl.textContent = score
+  highScoreEl.textContent = highScore
+  finalHighScoreEl.textContent = highScore
+
   gameOverOverlay.classList.remove("hidden")
   gameoverSound.play()
 }
 
-//=============================
-// PLAYER UPDATE WRT GRAVITY
-//==============================
+// =====================
+// PLAYER UPDATE (gravity)
+// =====================
 function updatePlayer() {
   player.vy += GRAVITY
   player.y += player.vy
@@ -196,24 +236,27 @@ function updatePlayer() {
   }
 }
 
-//=====================
+function updateAnimation(delta) {
+  frameTimer += delta
+  if (frameTimer >= FRAME_DELAY) {
+    currentFrame = (currentFrame + 1) % 6
+    frameTimer = 0
+  }
+}
+
+// =====================
 // OBSTACLE SPAWN / UPDATE
-//=====================
+// =====================
 function randomSpawnInterval() {
   const base = 1000 + Math.random() * 1000
   return base * (8 / gameSpeed)
-}
-
-const enemy_type = {
-  spike: { w: 75, h: 135 },
-  skeleton: { w: 90, h: 100 },
-  spider: { w: 50, h: 100 },
 }
 
 function spawnObstacle() {
   const names = Object.keys(enemy_type)
   const type = names[Math.floor(Math.random() * names.length)]
   const { w, h } = enemy_type[type]
+
   obstacles.push({
     x: canvas.width,
     y: GROUND.y - h / 2,
@@ -229,93 +272,113 @@ function updateObstacles() {
   for (const obs of obstacles) {
     obs.x -= gameSpeed
   }
-
   obstacles = obstacles.filter((obs) => obs.x + obs.w > 0)
 }
 
-const playerImg = new Image()
-playerImg.src = "img/player.png"
 
-const RIPimg = new Image()
-RIPimg.src = "img/skeleton_enemy.png"
-
-const obstacleImg2 = new Image()
-obstacleImg2.src = "img/ghost.png"
-
-const spikeimg = new Image()
-spikeimg.src = "img/spike_enemy.png"
+function updateBackground() {
+  bgOffset += gameSpeed * BG_PARALLAX_FACTOR
+}
 
 // =====================
 // DRAW
 // =====================
 function draw() {
   ctx.clearRect(0, 0, canvas.width, canvas.height)
+  drawBackground()
   drawPlayer()
   drawObstacles()
 }
 
-function drawObstacles() {
-  for (const obs of obstacles) {
-    if (obs.type === "spike") {
-      ctx.drawImage(spikeimg, obs.x, obs.y, obs.w, obs.h)
-    //   ctx.strokeStyle = "red"
-    //   ctx.lineWidth = 2
-    //   ctx.strokeRect(obs.x, obs.y, obs.w, obs.h)
-    } else if (obs.type === "skeleton") {
-      ctx.drawImage(
-        obstacleImg2,
 
-        currentFrame * 190+20,
-        10,
+function mod(n, m) {
+  return ((n % m) + m) % m
+}
 
-        190,
-        130,
+function drawBackground() {
+  if (!bgTileWidth) return // image not loaded yet
 
-        obs.x,
-        obs.y,
+  const scrolledIntoTile = mod(bgOffset, bgTileWidth)
+  const firstTileIndex = Math.floor(bgOffset / bgTileWidth)
 
-        obs.w,
-        obs.h,
-      )
-    //   ctx.strokeStyle = "red"
-    //   ctx.lineWidth = 2
-    //   ctx.strokeRect(obs.x, obs.y , obs.w, obs.h)
-    } else if (obs.type === "spider") {
-      ctx.drawImage(RIPimg, obs.x, obs.y, obs.w, obs.h)
-        // ctx.strokeStyle = "red"
-        // ctx.lineWidth = 2
-        // ctx.strokeRect(obs.x, obs.y, obs.w, obs.h)
-    }
+  let x = -scrolledIntoTile
+  let tileIndex = firstTileIndex
+
+  while (x < canvas.width) {
+    drawBackgroundTile(x, tileIndex)
+    x += bgTileWidth
+    tileIndex++
   }
+}
+
+
+function drawBackgroundTile(x, tileIndex) {
+  ctx.save()
+  if (tileIndex % 2 !== 0) {
+    ctx.translate(x + bgTileWidth, 0)
+    ctx.scale(-1, 1)
+    ctx.drawImage(bgImg, 0, 0, bgTileWidth, canvas.height)
+  } else {
+    ctx.drawImage(bgImg, x, 0, bgTileWidth, canvas.height)
+  }
+  ctx.restore()
 }
 
 function drawPlayer() {
   ctx.drawImage(
     playerImg,
-
-    currentFrame * 165,
-    0,
-
-    165,
-    176,
-
+    currentFrame * 190 - 10,
+    5,
+    150,
+    130,
     player.x,
     player.y,
-
     player.w,
     player.h,
   )
-  //(Debug Box)
-    // ctx.strokeStyle = "red"
-    // ctx.lineWidth = 2
-    // ctx.strokeRect(player.x, player.y, player.w, player.h)
+
+  if (DEBUG) {
+    ctx.strokeStyle = "red"
+    ctx.lineWidth = 2
+    ctx.strokeRect(player.x, player.y, player.w, player.h)
+  }
+}
+
+function drawObstacles() {
+  for (const obs of obstacles) {
+    if (obs.type === "spike") {
+      ctx.drawImage(spikeImg, obs.x, obs.y, obs.w, obs.h)
+    } else if (obs.type === "skeleton") {
+      ctx.drawImage(skeletonEnemyImg, obs.x, obs.y, obs.w, obs.h)
+
+      //   ctx.drawImage(
+      //     ghostImg,
+      //     currentFrame * 190 - 20,
+      //     30,
+      //     190,
+      //     60,
+      //     obs.x,
+      //     obs.y,
+      //     obs.w,
+      //     obs.h,
+      //   )
+    } else if (obs.type === "RIP") {
+      ctx.drawImage(RIPImg, obs.x, obs.y, obs.w, obs.h)
+    }
+
+    if (DEBUG) {
+      ctx.strokeStyle = "red"
+      ctx.lineWidth = 2
+      ctx.strokeRect(obs.x, obs.y, obs.w, obs.h)
+    }
+  }
 }
 
 // =====================
 // COLLISION
 // =====================
 function detectCollision() {
-  const pad = 30
+  const pad = 20 // shrink hitbox slightly so it feels more fair
   for (const obs of obstacles) {
     if (
       player.x + pad < obs.x + obs.w &&
@@ -339,17 +402,18 @@ function updateScore(delta) {
     highScore = Math.max(highScore, score)
     scoreTimer = 0
     scoreSound += 1
+
     if (scoreSound === 100) {
       pointSound.play()
       scoreSound = 0
     }
+
     scoreEl.textContent = score
-    console.log(scoreSound)
   }
 }
 
 // =====================
-// LOOP
+// MAIN LOOP
 // =====================
 function loop(timestamp) {
   if (gameState !== "playing") return
@@ -366,6 +430,7 @@ function loop(timestamp) {
   updatePlayer()
   updateAnimation(delta)
   updateObstacles()
+  updateBackground()
 
   if (timestamp - lastSpawn >= nextSpawnInterval) {
     spawnObstacle()
@@ -375,23 +440,9 @@ function loop(timestamp) {
 
   detectCollision()
   updateScore(delta)
-
   draw()
-  ctx.fillStyle = "black"
-  ctx.fillRect(GROUND.x, GROUND.y + 85, GROUND.w, GROUND.h)
 
   frames++
   animationId = requestAnimationFrame(loop)
 }
-//testing
-// =====================
-// KEYBOARD INPUT
-// =====================
-function handleKeydown(e) {
-  if (e.code === "Space" || e.code === "ArrowUp") {
-    e.preventDefault()
-    if (gameState === "idle") startGame()
-    else if (gameState === "gameover") startGame()
-    else jump()
-  }
-}
+})();
