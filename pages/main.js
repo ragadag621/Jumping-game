@@ -40,7 +40,7 @@ const GROUND = {
   x: 0,
   y: 440,
   w: 800,
-  h: 0,
+  h: -35,
 }
 
 // =====================
@@ -88,6 +88,8 @@ window.onload = function () {
 
   canvas.addEventListener("mousedown", handleTap)
   canvas.addEventListener("touchstart", handleTap, { passive: false })
+  ctx.fillStyle = "black"
+  ctx.fillRect(GROUND.x, GROUND.y + 85, GROUND.w, GROUND.h)
 }
 
 // =====================
@@ -375,6 +377,8 @@ function loop(timestamp) {
   updateScore(delta)
 
   draw()
+  ctx.fillStyle = "black"
+  ctx.fillRect(GROUND.x, GROUND.y + 85, GROUND.w, GROUND.h)
 
   frames++
   animationId = requestAnimationFrame(loop)
