@@ -263,7 +263,11 @@ function spawnObstacle() {
 }
 
 function updateObstacles() {
-  gameSpeed += 0.001;
+  if(gameSpeed < 10)
+  {
+    gameSpeed += 0.001;
+  }
+  // gameSpeed += 0.001;
   for (const obs of obstacles) {
     obs.x -= gameSpeed;
   }
