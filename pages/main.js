@@ -371,7 +371,7 @@ function updateScore() {
       scoreEl.textContent = score;
 
       scoreSound += 1;
-      if (scoreSound === 100) {
+      if (scoreSound === 10) {
         pointSound.play();
         scoreSound = 0;
       }
