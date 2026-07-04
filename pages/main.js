@@ -19,9 +19,6 @@ const jumpVolumeControl = document.getElementById("jumpVolume");
 const pointVolumeControl = document.getElementById("pointVolume");
 const gameoverVolumeControl = document.getElementById("gameoverVolume");
 
-// Set DEBUG to true to draw hitboxes on top of the sprites
-const DEBUG = false;
-
 const CANVAS_W = 800;
 const CANVAS_H = 500;
 
@@ -139,7 +136,6 @@ window.onload = function () {
 // =====================
 // VOLUME CONTROL
 // =====================
-
 function setupVolumeSlider(sliderEl, audioEl, storageKey) {
   const savedVolume = localStorage.getItem(storageKey) ?? 0.5;
   sliderEl.value = savedVolume;
@@ -263,8 +259,7 @@ function spawnObstacle() {
 }
 
 function updateObstacles() {
-  if(gameSpeed < 10)
-  {
+  if (gameSpeed < 10) {
     gameSpeed += 0.001;
   }
   // gameSpeed += 0.001;
@@ -332,12 +327,6 @@ function drawPlayer() {
     player.w,
     player.h,
   );
-
-  if (DEBUG) {
-    ctx.strokeStyle = "red";
-    ctx.lineWidth = 2;
-    ctx.strokeRect(player.x, player.y, player.w, player.h);
-  }
 }
 
 function drawObstacles() {
@@ -348,12 +337,6 @@ function drawObstacles() {
       ctx.drawImage(skeletonEnemyImg, obs.x, obs.y, obs.w, obs.h);
     } else if (obs.type === "RIP") {
       ctx.drawImage(RIPImg, obs.x, obs.y, obs.w, obs.h);
-    }
-
-    if (DEBUG) {
-      ctx.strokeStyle = "red";
-      ctx.lineWidth = 2;
-      ctx.strokeRect(obs.x, obs.y, obs.w, obs.h);
     }
   }
 }
@@ -428,5 +411,4 @@ function loop(timestamp) {
 
   frames++;
   animationId = requestAnimationFrame(loop);
-  console.log(gameSpeed)
 }
